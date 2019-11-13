@@ -1,0 +1,24 @@
+version: '3'
+services:
+  kafka:
+    image: spotify/kafka:latest
+    ports:
+    - "9092:9092"
+    - "2181:2181"
+    hostname: kafka
+    environment:
+      ADVERTISED_HOST: kafka
+      ADVERTISED_PORT: 9092
+      AUTO_CREATE_TOPICS: "true"
+    command: >
+      bash -c
+      "(sleep 15s &&
+      /opt/kafka_2.11-0.10.1.0/bin/kafka-topics.sh
+      --create
+      --zookeeper
+      localhost:2181 --replication-factor 1 --partitions 1
+      --topic csv_topic &) && (supervisord -n)"
+  web:
+    build: .
+    depends_on: 
+      - kafka
